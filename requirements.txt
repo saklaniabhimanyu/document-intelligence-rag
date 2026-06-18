@@ -1,0 +1,40 @@
+# Document Intelligence System (RAG) — dependencies
+# Install with: pip install -r requirements.txt
+#
+# NOTE: langchain is pinned to the 0.2.x line on purpose. Newer langchain
+# (1.x) moved RecursiveCharacterTextSplitter into langchain_text_splitters
+# and reworked RetrievalQA — these exact versions were verified to work
+# together against this codebase.
+
+# Core LangChain stack
+langchain==0.2.16
+langchain-community==0.2.16
+langchain-text-splitters==0.2.4
+langchain-groq==0.1.9
+langchain-huggingface==0.0.3
+
+# Vector store
+faiss-cpu>=1.8.0
+
+# Embeddings / re-ranking
+sentence-transformers>=2.7.0
+
+# LLM provider
+groq>=0.9.0
+
+# Document loaders
+pymupdf>=1.24.0          # PDF parsing (fitz)
+python-docx>=1.1.0       # DOCX parsing
+
+# Evaluation
+ragas>=0.1.9
+datasets>=2.19.0
+
+# App / UI
+streamlit>=1.35.0
+
+# Utilities
+python-dotenv>=1.0.1
+pandas>=2.2.0
+tqdm>=4.66.0
+pytest>=8.0.0

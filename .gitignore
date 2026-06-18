@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+faiss_index/
+*.faiss
+*.pkl
+eval_results/
+.streamlit/secrets.toml
+data/uploads/
+*.csv.bak
+.DS_Store
