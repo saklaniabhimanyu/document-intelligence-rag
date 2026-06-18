@@ -1,0 +1,41 @@
+Document Intelligence System — Internal Engineering Note
+
+1
+Section 1: Overview
+
+Retrieval-Augmented Generation (RAG) combines a retriever and a generator. The
+retriever finds relevant passages from a document collection using vector
+similarity search. The generator, typically a large language model, then
+produces an answer conditioned on the retrieved passages rather than relying
+purely on parameters learned during training.
+
+This grounding step is the key difference between RAG and standard LLM chat.
+A standard chat model can only answer from what it memorized during training,
+which means it will hallucinate confidently when asked about documents it has
+never seen, such as an internal company policy or a freshly published report.
+
+2
+Section 2: Why Chunking Matters
+
+Documents are split into chunks before embedding because embedding models
+have a limited context window and because retrieval works best when each
+vector represents one coherent idea rather than an entire multi-topic
+document. A chunk size of around 500 characters with 50 characters of overlap
+is a reasonable starting point for prose-heavy documents; technical manuals
+with short, dense paragraphs sometimes benefit from smaller chunks.
+
+Overlap exists so that a sentence split across the boundary of two chunks
+still appears in full inside at least one chunk, which prevents losing
+context at the seam.
+
+3
+Section 3: Evaluation
+
+Faithfulness measures whether the generated answer is actually supported by
+the retrieved context, rather than introducing claims that the context does
+not contain. Answer relevancy measures whether the answer actually addresses
+the question that was asked. Context precision measures whether the
+retrieved chunks were the right ones, and context recall measures whether
+all the necessary information was retrieved at all.
+
+Internal Engineering Note — Confidential
