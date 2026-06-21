@@ -39,7 +39,7 @@ class RetrievalConfig:
 @dataclass
 class LLMConfig:
     groq_api_key: str = os.getenv("GROQ_API_KEY", "")
-    model_name: str = os.getenv("GROQ_MODEL", "llama3-70b-8192")
+    model_name: str = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
     temperature: float = 0.0
     max_tokens: int = 1024
 
@@ -47,12 +47,13 @@ class LLMConfig:
 @dataclass
 class PromptConfig:
     template: str = (
-        "Use ONLY the context below to answer the question. "
-        "If the answer is not contained in the context, say \"I don't know\" — "
-        "do not use outside knowledge.\n\n"
+        "You must answer ONLY using the context provided below. "
+        "Do not use any outside knowledge or invent information. "
+        "If the context does not contain the answer, respond exactly with: "
+        "\"I don't know based on the provided documents.\"\n\n"
         "Context:\n{context}\n\n"
         "Question: {question}\n\n"
-        "Answer (cite the source file and page number for every claim):"
+        "Answer (using ONLY the context above):"
     )
 
 

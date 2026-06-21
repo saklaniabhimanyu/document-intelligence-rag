@@ -69,17 +69,22 @@ def retrieve(
     return similarity_retrieve(index, query, k=config.top_k)
 
 
-class ConfigurableRetriever:
-    """A thin LangChain-compatible retriever wrapper so it can be dropped
-    straight into RetrievalQA.from_chain_type(retriever=...)."""
+from langchain_core.retrievers import BaseRetriever
+from langchain_core.callbacks import CallbackManagerForRetrieverRun
 
-    def __init__(self, index: FAISS, config: RetrievalConfig = retrieval_config):
-        self.index = index
-        self.config = config
 
-    def get_relevant_documents(self, query: str) -> List[Document]:
+class ConfigurableRetriever(BaseRetriever):
+    """A proper LangChain BaseRetriever wrapper, so RetrievalQA accepts it.
+    (A plain Python class doesn't satisfy LangChain's Pydantic validation —
+    this must actually subclass BaseRetriever.)"""
+
+    index: FAISS
+    config: RetrievalConfig = retrieval_config
+
+    class Config:
+        arbitrary_types_allowed = True
+
+    def _get_relevant_documents(
+        self, query: str, *, run_manager: CallbackManagerForRetrieverRun
+    ) -> List[Document]:
         return retrieve(self.index, query, self.config)
-
-    # LangChain's newer Runnable-style retrievers call .invoke()
-    def invoke(self, query: str, *args, **kwargs) -> List[Document]:
-        return self.get_relevant_documents(query)

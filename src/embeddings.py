@@ -27,7 +27,7 @@ def get_embedder(config: EmbeddingConfig = embedding_config):
     return HuggingFaceEmbeddings(
         model_name=config.model_name,
         model_kwargs={"device": config.device},
-        encode_kwargs={"normalize_embeddings": True},
+        encode_kwargs={"normalize_embeddings": True, "batch_size": 64},
     )
 
 

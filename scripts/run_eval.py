@@ -37,7 +37,7 @@ from src.evaluation import (
 def build_chain_for_config(chunks_source_dir: str, ingest_cfg, retrieve_cfg, llm, embedder):
     chunks = ingest_directory(chunks_source_dir, config=ingest_cfg)
     index = build_index(chunks, embedder=embedder)
-    retriever = ConfigurableRetriever(index, config=retrieve_cfg)
+    retriever = ConfigurableRetriever(index=index, config=retrieve_cfg)
     chain = build_qa_chain(retriever, llm=llm)
     return chain
 
