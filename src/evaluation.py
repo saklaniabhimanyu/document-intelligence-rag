@@ -51,24 +51,51 @@ def run_chain_over_eval_set(chain, eval_set: List[Dict[str, str]]) -> Dict[str, 
     }
 
 
-def score_with_ragas(dataset_dict: Dict[str, list]) -> Dict[str, float]:
-    """Computes the 4 core RAGAS metrics required by the spec."""
-    from datasets import Dataset
-    from ragas import evaluate
-    from ragas.metrics import (
-        faithfulness,
-        answer_relevancy,
-        context_precision,
-        context_recall,
-    )
+from datasets import Dataset
+from ragas import evaluate
+from ragas.metrics import (
+    faithfulness,
+    answer_relevancy,
+    context_precision,
+    context_recall,
+)
+
+from ragas.llms import LangchainLLMWrapper
+
+
+from datasets import Dataset
+from ragas import evaluate
+from ragas.metrics import (
+    faithfulness,
+    answer_relevancy,
+    context_precision,
+    context_recall,
+)
+from ragas.llms import LangchainLLMWrapper
+from ragas.embeddings import LangchainEmbeddingsWrapper
+
+
+def score_with_ragas(dataset_dict: Dict[str, list], llm, embedder) -> Dict[str, float]:
+    wrapped_llm = LangchainLLMWrapper(llm)
+    wrapped_embeddings = LangchainEmbeddingsWrapper(embedder)
 
     ds = Dataset.from_dict(dataset_dict)
+
     result = evaluate(
         ds,
-        metrics=[faithfulness, answer_relevancy, context_precision, context_recall],
+        metrics=[
+            faithfulness,
+            answer_relevancy,
+            context_precision,
+            context_recall,
+        ],
+        llm=wrapped_llm,
+        embeddings=wrapped_embeddings,
     )
-    return {k: float(v) for k, v in result.items()}
 
+    df = result.to_pandas()
+    metric_names = ["faithfulness", "answer_relevancy", "context_precision", "context_recall"]
+    return {m: float(df[m].mean()) for m in metric_names if m in df.columns}
 
 def compare_baseline_vs_optimised(
     baseline_scores: Dict[str, float],

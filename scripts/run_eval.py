@@ -52,14 +52,14 @@ def main():
     baseline_chain = build_chain_for_config(data_dir, BASELINE_INGESTION, BASELINE_RETRIEVAL, llm, embedder)
     baseline_dataset = run_chain_over_eval_set(baseline_chain, eval_set)
     print("Scoring baseline with RAGAS ...")
-    baseline_scores = score_with_ragas(baseline_dataset)
+    baseline_scores = score_with_ragas(baseline_dataset,llm,embedder)
     print(baseline_scores)
 
     print("\n=== Building OPTIMISED pipeline (current src/config.py settings) ===")
     optimised_chain = build_chain_for_config(data_dir, ingestion_config, retrieval_config, llm, embedder)
     optimised_dataset = run_chain_over_eval_set(optimised_chain, eval_set)
     print("Scoring optimised with RAGAS ...")
-    optimised_scores = score_with_ragas(optimised_dataset)
+    optimised_scores = score_with_ragas(optimised_dataset,llm,embedder)
     print(optimised_scores)
 
     print("\n=== Improvement ===")
