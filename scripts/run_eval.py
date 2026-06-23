@@ -41,25 +41,35 @@ def build_chain_for_config(chunks_source_dir: str, ingest_cfg, retrieve_cfg, llm
     chain = build_qa_chain(retriever, llm=llm)
     return chain
 
+from langchain_groq import ChatGroq
+from src.config import llm_config
 
 def main():
     data_dir = "data/corpus"
     eval_set = load_eval_set()
-    llm = get_llm()
+    llm = get_llm()  # gpt-oss-120b — used for answering questions
     embedder = get_embedder()
+
+    # Separate, non-reasoning judge model for RAGAS scoring only.
+    # gpt-oss-120b's reasoning-model output format breaks RAGAS's parsing
+    judge_llm = ChatGroq(
+        api_key=llm_config.groq_api_key,
+        model="llama-3.3-70b-versatile",
+        temperature=0.0,
+    )
 
     print("=== Building BASELINE pipeline (chunk_size=1000, no MMR, no reranker) ===")
     baseline_chain = build_chain_for_config(data_dir, BASELINE_INGESTION, BASELINE_RETRIEVAL, llm, embedder)
     baseline_dataset = run_chain_over_eval_set(baseline_chain, eval_set)
     print("Scoring baseline with RAGAS ...")
-    baseline_scores = score_with_ragas(baseline_dataset,llm,embedder)
+    baseline_scores = score_with_ragas(baseline_dataset, judge_llm, embedder)  # judge_llm, not llm
     print(baseline_scores)
 
     print("\n=== Building OPTIMISED pipeline (current src/config.py settings) ===")
     optimised_chain = build_chain_for_config(data_dir, ingestion_config, retrieval_config, llm, embedder)
     optimised_dataset = run_chain_over_eval_set(optimised_chain, eval_set)
     print("Scoring optimised with RAGAS ...")
-    optimised_scores = score_with_ragas(optimised_dataset,llm,embedder)
+    optimised_scores = score_with_ragas(optimised_dataset, judge_llm, embedder)  # judge_llm, not llm
     print(optimised_scores)
 
     print("\n=== Improvement ===")

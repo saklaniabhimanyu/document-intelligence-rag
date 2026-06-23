@@ -75,22 +75,41 @@ from ragas.llms import LangchainLLMWrapper
 from ragas.embeddings import LangchainEmbeddingsWrapper
 
 
-def score_with_ragas(dataset_dict: Dict[str, list], llm, embedder) -> Dict[str, float]:
+from datasets import Dataset
+from ragas import evaluate
+from ragas.metrics import (
+    faithfulness,
+    answer_relevancy,
+    context_precision,
+    context_recall,
+)
+from ragas.llms import LangchainLLMWrapper
+from ragas.embeddings import LangchainEmbeddingsWrapper
+from ragas.run_config import RunConfig
+
+
+def score_with_ragas(dataset_dict, llm, embedder) -> Dict[str, float]:
     wrapped_llm = LangchainLLMWrapper(llm)
     wrapped_embeddings = LangchainEmbeddingsWrapper(embedder)
 
     ds = Dataset.from_dict(dataset_dict)
 
+    # max_workers=1 forces one request at a time instead of ~16 concurrent
+    # requests hammering Groq simultaneously — that concurrency is exactly
+    # what's causing near-universal TimeoutErrors right now
+    run_config = RunConfig(
+                            max_workers=1,
+                            timeout=180,
+                            max_retries=10,      
+                            max_wait=30,         
+                        )
+
     result = evaluate(
         ds,
-        metrics=[
-            faithfulness,
-            answer_relevancy,
-            context_precision,
-            context_recall,
-        ],
+        metrics=[faithfulness, answer_relevancy, context_precision, context_recall],
         llm=wrapped_llm,
         embeddings=wrapped_embeddings,
+        run_config=run_config,
     )
 
     df = result.to_pandas()
