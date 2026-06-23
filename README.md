@@ -12,7 +12,7 @@ your question ──▶ embed query ──▶ retrieve top-k ◀───┘
                           (optional: MMR / cross-encoder rerank)
                                        │
                                        ▼
-                     Groq Llama-3-70B  +  "answer only from context"
+             Groq openai/gpt-oss-120b  +  "answer only from context"
                                        │
                                        ▼
                          answer + source citations (file, page)
@@ -145,6 +145,11 @@ Fill in the `ground_truth` answers manually inside:
 ```text
 data/eval_set.json
 ```
+Models Used
+- Answer Generation (RAG Pipeline): openai/gpt-oss-120b via Groq
+- RAGAS Evaluation: llama-3.3-70b-versatile via Groq
+
+A separate evaluation model is used for RAGAS scoring to assess faithfulness, answer relevancy, context precision, and context recall independently of the answer-generation model.
 
 Run evaluation:
 
